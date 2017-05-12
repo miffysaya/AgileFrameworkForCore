@@ -596,7 +596,7 @@ namespace AgileFramework.Web
             foreach (Match match in matchs)
             {
                 string keyword = match.Groups[0].Value;
-                int keywordChar = SlConvert.TryToInt32(match.Groups[1].Value);
+                int keywordChar = AgileConvert.TryToInt32(match.Groups[1].Value);
 
                 if (chars.ContainsKey(keywordChar))
                 {
