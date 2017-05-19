@@ -116,7 +116,7 @@ namespace AgileFramework.Data
         public static object ExecuteScalar(string connectionString, string sentence, DbParameter[] parameters = null, AgileDatabaseType databaseType = AgileDatabaseType.SqlServer)
         {
             object result = null;
-            DbProviderFactory factory = GetDbProviderFactory();
+            DbProviderFactory factory = GetDbProviderFactory(databaseType);
             using (DbConnection dbConnection = factory.CreateConnection())
             {
                 dbConnection.ConnectionString = connectionString;
@@ -149,7 +149,7 @@ namespace AgileFramework.Data
         /// <param name="parameters">参数数组</param>
         public static void Fill(string connectionString, string sentence, DataSet dataSet, DbParameter[] parameters = null, AgileDatabaseType databaseType = AgileDatabaseType.SqlServer)
         {
-            DbProviderFactory factory = GetDbProviderFactory();
+            DbProviderFactory factory = GetDbProviderFactory(databaseType);
             DbConnection dbConnection = factory.CreateConnection();
             dbConnection.ConnectionString = connectionString;
 
@@ -178,7 +178,7 @@ namespace AgileFramework.Data
         /// <param name="parameters">参数数组</param>
         public static void Fill(string connectionString, string sentence, DataTable dataTable, DbParameter[] parameters = null, AgileDatabaseType databaseType = AgileDatabaseType.SqlServer)
         {
-            DbProviderFactory factory = GetDbProviderFactory();
+            DbProviderFactory factory = GetDbProviderFactory(databaseType);
             DbConnection dbConnection = factory.CreateConnection();
             dbConnection.ConnectionString = connectionString;
 
