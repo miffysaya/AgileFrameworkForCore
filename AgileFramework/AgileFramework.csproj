@@ -84,6 +84,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Business\AgilePDASoap.cs" />
+    <Compile Include="Collections\AgileEnumerable.cs" />
     <Compile Include="Configuration\AgileConfig.cs" />
     <Compile Include="Data\AgileSQLCommand.cs" />
     <Compile Include="Algorithms\AgileArray.cs" />
