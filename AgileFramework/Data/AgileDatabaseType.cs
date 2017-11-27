@@ -13,7 +13,7 @@
         /// <summary>
         /// OleDb数据库
         /// </summary>
-        OleDb,
+        //OleDb,
         /// <summary>
         /// SqlServer数据库
         /// </summary>

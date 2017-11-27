@@ -1,19 +1,24 @@
-﻿using System;
+﻿using Microsoft.Extensions.Caching.Memory;
+using System;
 using System.Collections.Generic;
-using System.Web;
-using System.Web.Caching;
+using System.Linq;
 
 namespace AgileFramework.Net
 {
     /// <summary>
-    /// 基于.NET基础类的缓存池
+    /// 基于.NET基础类的缓存池，需要先注入
     /// </summary>
     public class AgileHttpCache
     {
         /// <summary>
         /// 基于.NET的缓存器
         /// </summary>
-        private static Cache cache = HttpRuntime.Cache;
+        protected static IMemoryCache cache;
+
+        public AgileHttpCache(IMemoryCache _cache)
+        {
+            cache = _cache;
+        }
 
         /// <summary>
         /// 插入缓存项
@@ -23,15 +28,11 @@ namespace AgileFramework.Net
         /// <returns>是否插入</returns>
         public bool Add(string key, object obj)
         {
-            bool ret = false;
-
             if (obj != null && !string.IsNullOrEmpty(key))
             {
-                cache.Insert(key, obj, null, Cache.NoAbsoluteExpiration, TimeSpan.Zero);
-
-                ret = true;
+                cache.Set(key, obj);
             }
-            return ret;
+            return ContainsKey(key);
         }
 
         /// <summary>
@@ -41,17 +42,40 @@ namespace AgileFramework.Net
         /// <param name="obj">值</param>
         /// <param name="TimeOut">超时时间</param>
         /// <returns>是否插入</returns>
-        public bool Add(string key, object obj, int timeOutSeconds)
+        public bool Add(string key, object obj, TimeSpan expiresSliding, TimeSpan expiressAbsoulte)
         {
-            bool ret = false;
-
             if (obj != null && !string.IsNullOrEmpty(key))
             {
-                cache.Insert(key, obj, null, DateTime.Now.AddSeconds(timeOutSeconds), TimeSpan.Zero);
-
-                ret = true;
+                cache.Set(key, obj,
+                     new MemoryCacheEntryOptions()
+                     .SetSlidingExpiration(expiresSliding)
+                     .SetAbsoluteExpiration(expiressAbsoulte)
+                     );
             }
-            return ret;
+            return ContainsKey(key);
+        }
+
+        public bool Add(string key, object obj, TimeSpan expiresIn, bool isSliding = false)
+        {
+            if (obj != null && !string.IsNullOrEmpty(key))
+            {
+                if (isSliding)
+                {
+                    cache.Set(key, obj,
+                        new MemoryCacheEntryOptions()
+                        .SetSlidingExpiration(expiresIn)
+                        );
+                }
+                else
+                {
+                    cache.Set(key, obj,
+                    new MemoryCacheEntryOptions()
+                    .SetAbsoluteExpiration(expiresIn)
+                    );
+                }
+            }
+
+            return ContainsKey(key);
         }
 
         /// <summary>
@@ -61,17 +85,9 @@ namespace AgileFramework.Net
         /// <returns></returns>
         public bool ContainsKey(string key)
         {
-            bool isContainsKey = false;
+            object obj;
 
-            if (cache[key] != null)
-            {
-                isContainsKey = true;
-            }
-            if (!isContainsKey)
-            {
-                Delete(key);
-            }
-            return isContainsKey;
+            return cache.TryGetValue(key, out obj);
         }
 
         /// <summary>
@@ -81,38 +97,22 @@ namespace AgileFramework.Net
         /// <returns></returns>
         public bool Delete(string key)
         {
-            bool ret = false;
-
             if (!string.IsNullOrEmpty(key))
             {
                 cache.Remove(key);
-
-                ret = true;
             }
-            return ret;
+            return !ContainsKey(key);
         }
 
         /// <summary>
         /// 删除所有项
         /// </summary>
         /// <returns></returns>
-        public bool DeleteAll()
+        public bool DeleteAll(IEnumerable<string> keys)
         {
-            if (cache.Count == 0)
-            {
-                return true;
-            }
             lock (cache)
             {
-                var list = new List<string>();
-
-                var enumerator = cache.GetEnumerator();
-
-                while (enumerator.MoveNext())
-                {
-                    list.Add(enumerator.Key.ToString());
-                }
-                list.ForEach(item => cache.Remove(item));
+                keys.ToList().ForEach(item => cache.Remove(item));
             }
             return true;
         }
@@ -124,7 +124,7 @@ namespace AgileFramework.Net
         /// <returns></returns>
         public object Get(string key)
         {
-            return cache[key];
+            return cache.Get(key);
         }
 
         /// <summary>
@@ -135,7 +135,7 @@ namespace AgileFramework.Net
         /// <returns></returns>
         public T Get<T>(string key)
         {
-            return (T)cache[key];
+            return (T)cache.Get(key);
         }
 
         /// <summary>
@@ -146,7 +146,10 @@ namespace AgileFramework.Net
         /// <returns></returns>
         public bool Set(string key, object obj)
         {
-            Delete(key);
+            if (ContainsKey(key))
+            {
+                Delete(key);
+            }
             return Add(key, obj);
         }
 
@@ -157,10 +160,31 @@ namespace AgileFramework.Net
         /// <param name="obj"></param>
         /// <param name="TimeOut"></param>
         /// <returns></returns>
-        public bool Set(string key, object obj, int timeOutSeconds)
+        public bool Set(string key, object obj, TimeSpan expiresSliding, TimeSpan expiressAbsoulte)
         {
-            Delete(key);
-            return Add(key, obj, timeOutSeconds);
+            if (ContainsKey(key))
+            {
+                Delete(key);
+            }
+            return Add(key, obj, expiresSliding, expiressAbsoulte);
+        }
+
+        public bool Set(string key, object obj, TimeSpan expiresIn, bool isSliding = false)
+        {
+            if (ContainsKey(key))
+            {
+                Delete(key);
+            }
+            return Add(key, obj, expiresIn, isSliding);
+        }
+
+        public void Dispose()
+        {
+            if (cache != null)
+            {
+                cache.Dispose();
+            }
+            GC.SuppressFinalize(this);
         }
     }
 }

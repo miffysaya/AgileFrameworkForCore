@@ -2,7 +2,6 @@
 using System.IO.Compression;
 using System.Net;
 using System.Text;
-using System.Web;
 
 namespace AgileFramework.Web
 {
@@ -11,6 +10,10 @@ namespace AgileFramework.Web
     /// </summary>
     public static class AgileRequest
     {
+        /*
+         * 废弃，IP通过ContextAccessor获取
+         * 
+        
         /// <summary>
         /// 用户IP
         /// </summary>
@@ -22,13 +25,14 @@ namespace AgileFramework.Web
 
                 var ip = "";
 
-                if (request.ServerVariables["HTTP_X_FORWARDED_FOR"] != null)
+                if (!string.IsNullOrWhiteSpace(request.Headers["X-Forwarded-For"].FirstOrDefault()))
                 {
-                    ip = request.ServerVariables["HTTP_X_FORWARDED_FOR"].Trim();
+                    ip = request.Headers["X-Forwarded-For"].FirstOrDefault().Trim();
                 }
                 if (ip.Length == 0)
                 {
-                    ip = request.ServerVariables["REMOTE_ADDR"];
+                    //ip = request.ServerVariables["REMOTE_ADDR"];
+                    ip = request.HttpContext.Connection.RemoteIpAddress.ToString();
                 }
                 if (ip.IndexOf(",") > -1)
                 {
@@ -62,6 +66,8 @@ namespace AgileFramework.Web
             }
         }
 
+        */
+
         /// <summary>
         /// 获取URL内容
         /// </summary>
@@ -77,7 +83,7 @@ namespace AgileFramework.Web
             {
                 encoding = Encoding.Default;
             }
-            var request = HttpWebRequest.Create(url);
+            var request = WebRequest.Create(url);
 
             request.Proxy = null;
 

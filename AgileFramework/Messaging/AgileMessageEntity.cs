@@ -1,4 +1,5 @@
-﻿using System;
+﻿/*
+using System;
 
 namespace AgileFramework.Messaging
 {
@@ -51,3 +52,4 @@ namespace AgileFramework.Messaging
         }
     }
 }
+*/

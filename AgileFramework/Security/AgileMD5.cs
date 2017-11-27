@@ -28,6 +28,7 @@ namespace AgileFramework.Security
             return ret.ToString();
         }
 
+        /*
         /// <summary>
         /// 计算MD5Cng哈希值
         /// </summary>
@@ -49,5 +50,6 @@ namespace AgileFramework.Security
             }
             return ret.ToString();
         }
+        */
     }
 }

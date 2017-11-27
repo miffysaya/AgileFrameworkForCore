@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Data.SqlClient;
-using System.Data.OracleClient;
-using MySql.Data.MySqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MySql.Data.MySqlClient;
+using System;
 using System.Data;
+using System.Data.Common;
+using System.Data.OracleClient;
+using System.Data.SqlClient;
 using System.Text.RegularExpressions;
 using System.Transactions;
 
@@ -28,9 +24,9 @@ namespace AgileFramework.Data
                 case AgileDatabaseType.SqlServer:
                     instance = SqlClientFactory.Instance;
                     break;
-                case AgileDatabaseType.OleDb:
+                /*case AgileDatabaseType.OleDb:
                     instance = OleDbFactory.Instance;
-                    break;
+                    break;*/
                 case AgileDatabaseType.Oracle:
                     instance = OracleClientFactory.Instance;
                     break;

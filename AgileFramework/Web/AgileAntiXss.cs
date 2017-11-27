@@ -1,6 +1,7 @@
-﻿using Microsoft.Security.Application;
+﻿using AgileFramework.Security.Application;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+
 
 namespace AgileFramework.Web
 {
@@ -637,7 +638,5 @@ namespace AgileFramework.Web
         {
             return getSafeTextRegex.Replace(input, "");
         }
-
-
     }
 }
